@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// 用户表
+model User {
+  id                Int       @id @default(autoincrement())
+  openid            String?   @unique
+  unionid           String?
+  phone             String?   @unique
+  nickname          String    @default("")
+  avatar            String    @default("")
+  gender            Int       @default(0)
+  vipLevel          Int       @default(0)
+  vipExpireAt       DateTime?
+  coinBalance       Int       @default(0)
+  totalWatchSeconds Int       @default(0)
+  status            Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  watchRecords      WatchRecord[]
+  favorites         Favorite[]
+  follows           UserFollow[] @relation("UserFollows")
+  followedBy        UserFollow[] @relation("FollowedBy")
+  coinTransactions  CoinTransaction[]
+  dailyTasks        UserDailyTask[]
+  checkins          UserCheckin[]
+  vipOrders         VipOrder[]
+  comments          Comment[]
+  likes             UserLike[]
+}
+
+// 剧集表
+model Drama {
+  id            Int       @id @default(autoincrement())
+  title         String
+  coverUrl      String    @default("")
+  verticalCoverUrl String @default("")
+  description   String    @default("")
+  genre         String    @default("")
+  tags          String    @default("")
+  episodeCount  Int       @default(0)
+  status        String    @default("serial") // serial/finished
+  isExclusive   Boolean   @default(false)
+  isNew         Boolean   @default(false)
+  playCount     Int       @default(0)
+  collectCount  Int       @default(0)
+  sortWeight    Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  episodes      Episode[]
+  watchRecords  WatchRecord[]
+  comments      Comment[]
+  favorites     Favorite[]
+}
+
+// 单集表
+model Episode {
+  id              Int      @id @default(autoincrement())
+  dramaId         Int
+  episodeNumber   Int
+  title           String   @default("")
+  description     String   @default("")
+  videoUrl        String   @default("")
+  durationSeconds Int      @default(0)
+  isFree          Boolean  @default(true)
+  coinCost        Int      @default(0)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  drama           Drama    @relation(fields: [dramaId], references: [id])
+  watchRecords    WatchRecord[]
+}
+
+// 观看记录表
+model WatchRecord {
+  id                    Int       @id @default(autoincrement())
+  userId                Int
+  dramaId               Int
+  episodeId             Int
+  watchProgressSeconds  Int       @default(0)
+  watchDurationSeconds  Int       @default(0)
+  completed             Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user                  User      @relation(fields: [userId], references: [id])
+  drama                 Drama     @relation(fields: [dramaId], references: [id])
+  episode               Episode   @relation(fields: [episodeId], references: [id])
+}
+
+// 收藏表
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  dramaId   Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  drama     Drama    @relation(fields: [dramaId], references: [id])
+
+  @@unique([userId, dramaId])
+}
+
+// 关注表
+model UserFollow {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  followUserId Int
+  createdAt    DateTime @default(now())
+
+  user         User     @relation("UserFollows", fields: [userId], references: [id])
+  followUser   User     @relation("FollowedBy", fields: [followUserId], references: [id])
+
+  @@unique([userId, followUserId])
+}
+
+// 金币流水表
+model CoinTransaction {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  type         String   // checkin/watch/task/exchange/system
+  amount       Int
+  balanceAfter Int
+  description  String   @default("")
+  relatedId    Int?
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id])
+}
+
+// 每日任务表
+model DailyTask {
+  id          Int      @id @default(autoincrement())
+  taskKey     String   @unique
+  taskName    String
+  description String   @default("")
+  coinReward  Int
+  targetValue Int
+  taskType    String   // watch_duration/checkin/share/reserve
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  userTasks   UserDailyTask[]
+}
+
+// 用户每日任务记录
+model UserDailyTask {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  taskId        Int
+  progress      Int      @default(0)
+  completed     Boolean  @default(false)
+  rewardClaimed Boolean  @default(false)
+  taskDate      String   // YYYY-MM-DD
+
+  user          User     @relation(fields: [userId], references: [id])
+  task          DailyTask @relation(fields: [taskId], references: [id])
+
+  @@unique([userId, taskId, taskDate])
+}
+
+// 签到记录表
+model UserCheckin {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  checkinDate String   @unique // YYYY-MM-DD
+  dayNumber   Int      // 连续签到天数
+  coinReward  Int
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// VIP订单表
+model VipOrder {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  orderNo     String    @unique
+  planType    String    // week/month/quarter/year
+  amount      Decimal   @db.Decimal(10, 2)
+  payMethod   String?   // wechat/alipay
+  payStatus   String    @default("pending") // pending/paid/failed/refunded
+  payTime     DateTime?
+  vipStartAt  DateTime?
+  vipExpireAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+// 评论表
+model Comment {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  dramaId     Int
+  episodeId   Int?
+  content     String
+  parentId    Int?
+  likeCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+  drama       Drama    @relation(fields: [dramaId], references: [id])
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[] @relation("CommentReplies")
+}
+
+// 点赞表
+model UserLike {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  targetType String   // drama/comment
+  targetId   Int
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, targetType, targetId])
+}
+
+// 广告配置表
+model Advertisement {
+  id          Int      @id @default(autoincrement())
+  adPosition  String   // splash/unlock/feed
+  adProvider  String   @default("pangolin")
+  adUnitId    String
+  priority    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// 宝箱配置表
+model BlindBox {
+  id                Int      @id @default(autoincrement())
+  boxName           String
+  boxType           String   // small/medium/large
+  coinCost          Int
+  probabilityConfig String   @default("{}") // JSON
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+}
+
+// 系统配置表
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  configKey   String   @unique
+  configValue String
+  description String   @default("")
+  updatedAt   DateTime @updatedAt
+}
