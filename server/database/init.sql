@@ -1,8 +1,11 @@
 -- 山狸看剧数据库初始化脚本
+-- 修复：TEXT/BLOB 字段不能设置 DEFAULT 值（MySQL 严格模式兼容）
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS shanli_drama CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE shanli_drama;
+
+SET NAMES utf8mb4;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
@@ -30,7 +33,7 @@ CREATE TABLE IF NOT EXISTS dramas (
     title VARCHAR(255) NOT NULL,
     cover_url VARCHAR(500) DEFAULT '',
     vertical_cover_url VARCHAR(500) DEFAULT '',
-    description TEXT DEFAULT '',
+    description TEXT,
     genre VARCHAR(100) DEFAULT '',
     tags VARCHAR(500) DEFAULT '',
     episode_count INT DEFAULT 0,
@@ -53,7 +56,7 @@ CREATE TABLE IF NOT EXISTS episodes (
     drama_id INT NOT NULL,
     episode_number INT NOT NULL,
     title VARCHAR(255) DEFAULT '',
-    description TEXT DEFAULT '',
+    description TEXT,
     video_url VARCHAR(500) DEFAULT '',
     duration_seconds INT DEFAULT 0,
     is_free BOOLEAN DEFAULT TRUE,
@@ -126,7 +129,7 @@ CREATE TABLE IF NOT EXISTS daily_tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
     task_key VARCHAR(100) UNIQUE NOT NULL,
     task_name VARCHAR(255) NOT NULL,
-    description TEXT DEFAULT '',
+    description TEXT,
     coin_reward INT NOT NULL,
     target_value INT NOT NULL,
     task_type VARCHAR(50) NOT NULL,
@@ -220,18 +223,18 @@ CREATE TABLE IF NOT EXISTS advertisements (
     INDEX idx_ad_position (ad_position)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 宝箱配置表
+-- 宝箱配置表（修复：TEXT 不能设 DEFAULT）
 CREATE TABLE IF NOT EXISTS blind_boxes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     box_name VARCHAR(255) NOT NULL,
     box_type VARCHAR(50) NOT NULL,
     coin_cost INT NOT NULL,
-    probability_config TEXT DEFAULT '{}',
+    probability_config TEXT,
     is_active BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 系统配置表
+-- 系统配置表（修复：TEXT 不能设 DEFAULT）
 CREATE TABLE IF NOT EXISTS system_configs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     config_key VARCHAR(100) UNIQUE NOT NULL,
