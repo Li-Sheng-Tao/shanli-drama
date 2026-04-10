@@ -1,11 +1,19 @@
 <script setup>
-// App.vue
+import { ref } from 'vue'
+
+// 当前选中的页面
+const activePage = ref('index')
+
+// 切换页面
+function switchPage(page) {
+  activePage.value = page
+}
 </script>
 
 <template>
   <div class="app">
-    <!-- 直接显示刷刷页面 -->
-    <div class="page page-dark">
+    <!-- 页面内容 -->
+    <div v-if="activePage === 'index'" class="page page-dark">
       <!-- 视频播放器容器 -->
       <div class="video-container">
         <video 
@@ -49,6 +57,47 @@
             <span class="tag">独家</span>
           </div>
         </div>
+      </div>
+    </div>
+    
+    <div v-else-if="activePage === 'find'" class="page page-light">
+      <div class="content">
+        <h1>找片</h1>
+        <p>找片页面内容</p>
+      </div>
+    </div>
+    
+    <div v-else-if="activePage === 'welfare'" class="page page-gray">
+      <div class="content">
+        <h1>福利</h1>
+        <p>福利页面内容</p>
+      </div>
+    </div>
+    
+    <div v-else-if="activePage === 'mine'" class="page page-light">
+      <div class="content">
+        <h1>我的</h1>
+        <p>个人中心页面内容</p>
+      </div>
+    </div>
+    
+    <!-- 底部导航栏 -->
+    <div class="tabbar">
+      <div class="tab-item" :class="{ active: activePage === 'index' }" @click="switchPage('index')">
+        <div class="tab-icon"></div>
+        <span class="tab-text">刷刷</span>
+      </div>
+      <div class="tab-item" :class="{ active: activePage === 'find' }" @click="switchPage('find')">
+        <div class="tab-icon"></div>
+        <span class="tab-text">找片</span>
+      </div>
+      <div class="tab-item" :class="{ active: activePage === 'welfare' }" @click="switchPage('welfare')">
+        <div class="tab-icon"></div>
+        <span class="tab-text">福利</span>
+      </div>
+      <div class="tab-item" :class="{ active: activePage === 'mine' }" @click="switchPage('mine')">
+        <div class="tab-icon"></div>
+        <span class="tab-text">我的</span>
       </div>
     </div>
   </div>
