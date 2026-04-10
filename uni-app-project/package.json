@@ -11,14 +11,15 @@
     "build:app-plus": "vite build --mode app-plus"
   },
   "dependencies": {
-    "vue": "^3.3.4",
+    "axios": "^1.6.8",
     "pinia": "^2.1.7",
-    "axios": "^1.6.8"
+    "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@dcloudio/uni-app": "^3.0.0-alpha",
-    "@dcloudio/uni-cli-shared": "^3.0.0-alpha",
+    "@dcloudio/uni-app": "*",
+    "@dcloudio/uni-cli-shared": "*",
     "@dcloudio/uni-ui": "^1.4.26",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
     "@vitejs/plugin-vue": "^4.4.0",
     "sass": "^1.69.5",
     "typescript": "^5.2.2",
