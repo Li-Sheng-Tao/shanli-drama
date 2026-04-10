@@ -1,0 +1,75 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "刷刷",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#000000"
+      }
+    },
+    {
+      "path": "pages/find/index",
+      "style": {
+        "navigationBarTitleText": "找片",
+        "navigationBarTextStyle": "black",
+        "navigationBarBackgroundColor": "#ffffff"
+      }
+    },
+    {
+      "path": "pages/welfare/index",
+      "style": {
+        "navigationBarTitleText": "福利",
+        "navigationBarTextStyle": "black",
+        "navigationBarBackgroundColor": "#ffffff"
+      }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarTextStyle": "black",
+        "navigationBarBackgroundColor": "#ffffff"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "山狸漫剧",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#6B7280",
+    "selectedColor": "#1A1A1A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "height": "56px",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "刷刷",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/find/index",
+        "text": "找片",
+        "iconPath": "static/tabbar/find.png",
+        "selectedIconPath": "static/tabbar/find-active.png"
+      },
+      {
+        "pagePath": "pages/welfare/index",
+        "text": "福利",
+        "iconPath": "static/tabbar/welfare.png",
+        "selectedIconPath": "static/tabbar/welfare-active.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mine-active.png"
+      }
+    ]
+  }
+}

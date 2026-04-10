@@ -1,0 +1,22 @@
+{
+  "name": "uni-app-official",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.5.32"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-app": "^2.0.2-5000620260331001",
+    "@dcloudio/uni-cli-shared": "^2.0.2-5000620260331001",
+    "@dcloudio/uni-ui": "^1.5.12",
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "vite": "^8.0.4"
+  }
+}
