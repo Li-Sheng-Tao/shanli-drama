@@ -11,6 +11,8 @@
     "build:app-plus": "vite build --mode app-plus"
   },
   "dependencies": {
+    "@vue/compiler-sfc": "^3.5.32",
+    "@vue/shared": "^3.5.32",
     "axios": "^1.6.8",
     "pinia": "^2.1.7",
     "vue": "^3.3.4"
