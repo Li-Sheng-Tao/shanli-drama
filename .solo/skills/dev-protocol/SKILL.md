@@ -1,6 +1,6 @@
 ---
 name: dev-protocol
-description: 'AI 开发协议执行器，用于指导 uni-app (Vue 3 + Composition API) 跨端开发和 PHP 后端开发，确保代码风格一致、开发流程规范、变更记录完整。'
+description: 'AI 开发协议执行器，用于指导 uni-app (Vue 3 + Composition API) 跨端开发和 Python (FastAPI) 后端开发，确保代码风格一致、开发流程规范、变更记录完整。'
 license: MIT
 allowed-tools: Bash, FileSystem
 ---
@@ -8,7 +8,7 @@ allowed-tools: Bash, FileSystem
 # AI 开发协议 (Dev Protocol)
 
 > **触发方式**：自动加载，每次开发任务开始时 AI 必须遵循本协议
-> **适用技术栈**：前端 uni-app (Vue 3 + Composition API) 跨端开发（H5 → 小程序 → APP） + 后端 PHP
+> **适用技术栈**：前端 uni-app (Vue 3 + Composition API) 跨端开发（H5 → 小程序 → APP） + 后端 Python (FastAPI)
 > **开发优先级**：H5 优先验证效果 → 小程序同步适配 → APP 后续开发
 > **核心目标**：保持代码风格一致、开发流程规范、变更记录完整
 > **关联文档**：
@@ -389,164 +389,224 @@ $z-toast: 800;
 
 ---
 
-## 三、PHP 后端代码规范
+## 三、Python 后端代码规范 (FastAPI)
 
 ### 3.1 项目结构
 
 ```
 app/
-├── Controllers/          # 控制器（按模块划分）
-│   ├── User/
-│   │   ├── AuthController.php
-│   │   └── ProfileController.php
-│   ├── Drama/
-│   │   ├── DramaController.php
-│   │   └── EpisodeController.php
+├── main.py               # FastAPI 应用入口
+├── config.py             # 配置文件（数据库、Redis、JWT 等）
+├── api/                  # API 路由（按模块划分）
+│   ├── __init__.py
+│   ├── deps.py           # 公共依赖（鉴权、分页等）
+│   └── v1/
+│       ├── __init__.py
+│       ├── user.py       # 用户相关路由
+│       ├── drama.py      # 剧集相关路由
+│       ├── coin.py       # 金币相关路由
+│       └── member.py     # 会员相关路由
+├── models/               # SQLAlchemy 数据模型
+│   ├── __init__.py
+│   ├── user.py
+│   ├── drama.py
+│   ├── coin.py
+│   └── member.py
+├── schemas/              # Pydantic 请求/响应模型
+│   ├── __init__.py
+│   ├── user.py
+│   ├── drama.py
+│   ├── common.py         # 通用响应模型
 │   └── ...
-├── Models/               # 数据模型
-│   ├── User.php
-│   ├── Drama.php
+├── services/             # 业务逻辑层
+│   ├── __init__.py
+│   ├── user_service.py
+│   ├── drama_service.py
+│   ├── coin_service.py
 │   └── ...
-├── Services/             # 业务逻辑层
-│   ├── User/
-│   │   ├── AuthService.php
-│   │   └── CoinService.php
-│   ├── Drama/
-│   │   └── DramaService.php
-│   └── ...
-├── Middleware/           # 中间件
-│   ├── AuthMiddleware.php
-│   ├── RateLimitMiddleware.php
-│   └── ...
-├── Requests/             # 请求验证
-│   ├── User/
-│   │   └── LoginRequest.php
-│   └── ...
-├── Resources/            # API 资源（响应格式化）
-│   ├── UserResource.php
-│   └── DramaResource.php
-├── Repositories/         # 数据访问层（可选）
-├── Exceptions/           # 自定义异常
-│   ├── BusinessException.php
-│   └── ...
-└── Helpers/              # 辅助函数
-    └── common.php
+├── core/                 # 核心模块
+│   ├── __init__.py
+│   ├── security.py       # JWT、密码加密
+│   ├── database.py       # 数据库连接
+│   ├── redis.py          # Redis 连接
+│   ├── exceptions.py     # 自定义异常
+│   └── middleware.py      # 中间件
+├── utils/                # 工具函数
+│   ├── __init__.py
+│   └── helpers.py
+└── requirements.txt      # 依赖清单
 ```
 
 ### 3.2 命名规范
 
 | 类型 | 规则 | 示例 |
 |------|------|------|
-| 类名 | PascalCase | `UserController`, `DramaService` |
-| 方法名 | camelCase | `getDramaList()`, `createUser()` |
-| 函数名 | snake_case | `format_date()`, `generate_token()` |
-| 变量 | camelCase | `$dramaList`, `$currentUser` |
+| 文件名 | snake_case | `drama_service.py`, `user.py` |
+| 类名 | PascalCase | `DramaService`, `UserCreate` |
+| 函数/方法名 | snake_case | `get_drama_list()`, `create_user()` |
+| 变量 | snake_case | `drama_list`, `current_user` |
 | 常量 | UPPER_SNAKE_CASE | `MAX_PAGE_SIZE`, `CACHE_PREFIX` |
 | 数据库表名 | snake_case，复数 | `users`, `drama_episodes` |
 | 数据库字段 | snake_case | `created_at`, `user_id` |
 | API 路由 | kebab-case | `/api/v1/drama-list` |
-| 配置键 | dot-notation, snake_case | `app.cache.ttl` |
+| Pydantic 模型 | PascalCase | `DramaListResponse`, `CoinBalance` |
 
-### 3.3 控制器规范
+### 3.3 路由规范
 
-```php
-<?php
+```python
+# app/api/v1/drama.py
+from fastapi import APIRouter, Depends, Query
+from app.schemas.drama import DramaListResponse, DramaDetailResponse
+from app.schemas.common import SuccessResponse, PagedResponse
+from app.services import drama_service
+from app.api.deps import get_current_user
 
-namespace App\Controllers\Drama;
+router = APIRouter(prefix="/dramas", tags=["剧集"])
 
-use App\Services\Drama\DramaService;
-use App\Resources\DramaResource;
-use App\Requests\Drama\ListRequest;
 
-/**
- * 剧集控制器
- */
-class DramaController extends BaseController
-{
-    public function __construct(
-        private DramaService $dramaService
-    ) {}
+@router.get("", response_model=SuccessResponse[PagedResponse[DramaListResponse]])
+async def get_drama_list(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=50),
+    category: str = Query(None),
+    keyword: str = Query(None),
+):
+    """获取剧集列表"""
+    result = await drama_service.get_list(
+        page=page,
+        page_size=page_size,
+        category=category,
+        keyword=keyword,
+    )
+    return SuccessResponse(data=result)
 
-    /**
-     * 获取剧集列表
-     */
-    public function index(ListRequest $request): array
-    {
-        $params = $request->validated();
-        $result = $this->dramaService->getList($params);
 
-        return $this->success([
-            'list' => DramaResource::collection($result->items()),
-            'total' => $result->total(),
-            'page' => $result->currentPage(),
-        ]);
-    }
-
-    /**
-     * 获取剧集详情
-     */
-    public function show(int $id): array
-    {
-        $drama = $this->dramaService->getDetail($id);
-
-        return $this->success(DramaResource::make($drama));
-    }
-}
+@router.get("/{drama_id}", response_model=SuccessResponse[DramaDetailResponse])
+async def get_drama_detail(drama_id: int):
+    """获取剧集详情"""
+    drama = await drama_service.get_detail(drama_id)
+    return SuccessResponse(data=drama)
 ```
 
 ### 3.4 服务层规范
 
-```php
-<?php
+```python
+# app/services/drama_service.py
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from app.models.drama import Drama
+from app.core.exceptions import BusinessException
 
-namespace App\Services\Drama;
 
-use App\Models\Drama;
-use App\Repositories\DramaRepository;
+class DramaService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
 
-class DramaService
-{
-    public function __construct(
-        private DramaRepository $dramaRepo
-    ) {}
+    async def get_list(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        category: str = None,
+        keyword: str = None,
+    ) -> dict:
+        """获取剧集列表"""
+        query = select(Drama).where(Drama.status == 1)
 
-    /**
-     * 获取剧集列表
-     */
-    public function getList(array $params)
-    {
-        $query = $this->dramaRepo->query();
+        if category:
+            query = query.where(Drama.category == category)
+        if keyword:
+            query = query.where(Drama.title.contains(keyword))
 
-        // 筛选条件
-        if (!empty($params['category'])) {
-            $query->where('category', $params['category']);
+        # 总数
+        count_query = select(func.count()).select_from(query.subquery())
+        total = (await self.db.execute(count_query)).scalar()
+
+        # 分页
+        query = query.order_by(Drama.created_at.desc())
+        query = query.offset((page - 1) * page_size).limit(page_size)
+        result = (await self.db.execute(query)).scalars().all()
+
+        return {
+            "list": result,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size,
         }
 
-        if (!empty($params['keyword'])) {
-            $query->where('title', 'like', "%{$params['keyword']}%");
-        }
-
-        return $query->orderBy('created_at', 'desc')
-            ->paginate($params['page_size'] ?? 20);
-    }
-
-    /**
-     * 获取剧集详情
-     */
-    public function getDetail(int $id): Drama
-    {
-        $drama = $this->dramaRepo->find($id);
-        if (!$drama) {
-            throw new BusinessException('剧集不存在');
-        }
-        return $drama;
-    }
-}
+    async def get_detail(self, drama_id: int) -> Drama:
+        """获取剧集详情"""
+        drama = await self.db.get(Drama, drama_id)
+        if not drama:
+            raise BusinessException("剧集不存在")
+        return drama
 ```
 
-### 3.5 API 响应格式
+### 3.5 Pydantic 模型规范
 
-```php
+```python
+# app/schemas/common.py
+from pydantic import BaseModel
+from typing import Generic, TypeVar, Optional, List
+
+T = TypeVar("T")
+
+
+class SuccessResponse(BaseModel, Generic[T]):
+    """统一成功响应"""
+    code: int = 0
+    message: str = "success"
+    data: Optional[T] = None
+
+
+class PagedResponse(BaseModel, Generic[T]):
+    """分页响应"""
+    list: List[T]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
+class ErrorResponse(BaseModel):
+    """统一错误响应"""
+    code: int
+    message: str
+    data: Optional[None] = None
+```
+
+### 3.6 数据模型规范
+
+```python
+# app/models/drama.py
+from sqlalchemy import Column, Integer, String, Text, BigInteger, SmallInteger, DateTime
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+
+class Drama(Base):
+    __tablename__ = "dramas"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    title = Column(String(100), nullable=False, comment="剧名")
+    cover = Column(String(255), comment="封面URL")
+    description = Column(Text, comment="简介")
+    category = Column(String(50), comment="分类")
+    tags = Column(String(500), comment="标签JSON")
+    total_episodes = Column(Integer, default=0, comment="总集数")
+    status = Column(SmallInteger, default=1, comment="状态 0下架 1上架")
+    is_exclusive = Column(SmallInteger, default=0, comment="是否独家")
+    is_new = Column(SmallInteger, default=0, comment="是否新剧")
+    unlock_coins = Column(Integer, default=0, comment="解锁金币数")
+    view_count = Column(BigInteger, default=0, comment="播放量")
+    collect_count = Column(BigInteger, default=0, comment="收藏量")
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+```
+
+### 3.7 API 响应格式
+
+```json
 // 成功响应
 {
     "code": 0,
@@ -578,7 +638,7 @@ class DramaService
 }
 ```
 
-### 3.6 错误码规范
+### 3.8 错误码规范
 
 | 范围 | 模块 |
 |------|------|
@@ -589,6 +649,22 @@ class DramaService
 | 40401 - 40499 | 资源不存在 |
 | 41001 - 41099 | 业务逻辑错误 |
 | 50001 - 50099 | 服务器内部错误 |
+
+### 3.9 自定义异常
+
+```python
+# app/core/exceptions.py
+from fastapi import HTTPException, status
+
+
+class BusinessException(HTTPException):
+    """业务逻辑异常"""
+    def __init__(self, message: str, code: int = 41001):
+        super().__init__(
+            status_code=status.HTTP_OK,
+            detail={"code": code, "message": message, "data": None},
+        )
+```
 
 ---
 
@@ -761,19 +837,18 @@ AI 接到新任务时，按以下步骤快速了解项目：
 
 ## 八、文件注释规范
 
-### 8.1 PHP 文件头注释
+### 8.1 Python 文件头注释
 
-```php
-<?php
-/**
- * 剧集服务类
- *
- * 负责剧集的增删改查、收藏、预约等业务逻辑
- *
- * @author AI Developer
- * @since v0.1.0
- * @updated v0.2.0 新增预约功能
- */
+```python
+"""
+剧集服务模块
+
+负责剧集的增删改查、收藏、预约等业务逻辑
+
+@author AI Developer
+@since v0.1.0
+@updated v0.2.0 新增预约功能
+"""
 ```
 
 ### 8.2 Vue 组件头注释
@@ -793,18 +868,28 @@ AI 接到新任务时，按以下步骤快速了解项目：
 
 ### 8.3 函数/方法注释
 
-```php
-/**
- * 获取剧集列表
- *
- * @param array $params 筛选参数
- * @param int   $params['page']     页码
- * @param int   $params['page_size'] 每页数量
- * @param string $params['category'] 分类筛选
- * @return \Illuminate\Pagination\LengthAwarePaginator
- * @throws \App\Exceptions\BusinessException 参数错误时抛出
- */
-public function getList(array $params): LengthAwarePaginator
+```python
+async def get_drama_list(
+    self,
+    page: int = 1,
+    page_size: int = 20,
+    category: str = None,
+    keyword: str = None,
+) -> dict:
+    """获取剧集列表
+
+    Args:
+        page: 页码
+        page_size: 每页数量
+        category: 分类筛选
+        keyword: 关键词搜索
+
+    Returns:
+        dict: 包含 list, total, page, page_size, total_pages
+
+    Raises:
+        BusinessException: 参数错误时抛出
+    """
 ```
 
 ```javascript

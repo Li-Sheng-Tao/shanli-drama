@@ -4,7 +4,7 @@
 > **当前版本**: v0.1.0
 > **说明**: AI 每次开发前必须先读取本文件，从 TODO 中认领任务，完成后移至 DONE
 > **开发优先级**: H5（第一阶段）→ 小程序（第二阶段）→ APP（第三阶段）→ 扩展功能（第四阶段）
-> **技术方案**: 前端 uni-app 跨端框架，后端 PHP
+> **技术方案**: 前端 uni-app 跨端框架，后端 Python (FastAPI)
 
 ### 阶段说明
 
@@ -24,9 +24,9 @@
 | # | 任务ID | 任务描述 | 模块 | 优先级 | 预估 | 依赖 |
 |---|--------|---------|------|--------|------|------|
 | F-01 | `project-init` | uni-app 项目初始化（Vue3 + Pinia + SCSS + pages.json 配置） | 前端 | P0 | 2h | 无 |
-| F-02 | `php-init` | PHP 后端项目初始化（框架搭建、目录结构、数据库连接） | 后端 | P0 | 2h | 无 |
-| F-03 | `db-schema` | 数据库表结构创建（users, dramas, episodes, coins, members 等） | 后端 | P0 | 3h | F-02 |
-| F-04 | `api-base` | API 基础架构（统一响应格式、异常处理、中间件、鉴权） | 后端 | P0 | 3h | F-02 |
+| F-02 | `python-init` | Python 后端项目初始化（FastAPI + SQLAlchemy + Alembic + 目录结构） | 后端 | P0 | 2h | 无 |
+| F-03 | `db-schema` | 数据库表结构创建（SQLAlchemy Models + Alembic 迁移） | 后端 | P0 | 3h | F-02 |
+| F-04 | `api-base` | API 基础架构（统一响应模型、异常处理、中间件、JWT 鉴权） | 后端 | P0 | 3h | F-02 |
 | F-05 | `request-setup` | 前端请求封装（H5 用 axios，小程序/APP 用 uni.request，条件编译） | 前端 | P0 | 2h | F-01 |
 | F-06 | `design-tokens` | 全局设计令牌（颜色变量、字体、间距、圆角、阴影 SCSS 文件） | 前端 | P0 | 1h | F-01 |
 | F-07 | `tabbar-setup` | 底部导航栏配置（pages.json tabBar + 自定义 tabbar 组件） | 前端 | P0 | 2h | F-01 |
