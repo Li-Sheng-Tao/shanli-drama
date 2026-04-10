@@ -1,0 +1,162 @@
+@import './variables.scss';
+@import './mixins.scss';
+
+// 基础样式重置
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: 1.5;
+  color: $color-text-dark;
+  background-color: $color-bg-secondary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 通用样式
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $margin-page;
+}
+
+// 标题样式
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-bold;
+  color: $color-text-dark;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: $font-size-xxl;
+}
+
+h2 {
+  font-size: $font-size-xl;
+}
+
+h3 {
+  font-size: $font-size-lg;
+}
+
+h4 {
+  font-size: $font-size-md;
+}
+
+// 链接样式
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: $color-primary-dark;
+  }
+}
+
+// 按钮基础样式
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+// 输入框样式
+input, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  border: 1px solid $color-border;
+  border-radius: $radius-base;
+  padding: $spacing-sm $spacing-base;
+  outline: none;
+  transition: border-color 0.3s ease;
+  
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+// 列表样式
+ul, ol {
+  list-style: none;
+}
+
+// 图片样式
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// 通用工具类
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex {
+  @include flex;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.flex-column {
+  @include flex-column;
+}
+
+.text-ellipsis {
+  @include text-ellipsis;
+}
+
+.text-ellipsis-2 {
+  @include text-ellipsis-2;
+}
+
+.card {
+  @include card;
+}
+
+// 页面背景
+.page-dark {
+  background-color: $color-bg-primary;
+  color: $color-text-primary;
+}
+
+.page-light {
+  background-color: $color-bg-secondary;
+  color: $color-text-dark;
+}
+
+.page-gray {
+  background-color: $color-bg-gray;
+  color: $color-text-dark;
+}
+
+// 安全区域适配
+.safe-area-bottom {
+  @include safe-area-bottom;
+}
+
+.safe-area-top {
+  @include safe-area-top;
+}

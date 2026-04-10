@@ -23,7 +23,6 @@
 
 | # | 任务ID | 任务描述 | 模块 | 优先级 | 预估 | 依赖 |
 |---|--------|---------|------|--------|------|------|
-| F-01 | `project-init` | uni-app 项目初始化（Vue3 + Pinia + SCSS + pages.json 配置） | 前端 | P0 | 2h | 无 |
 | F-02 | `python-init` | Python 后端项目初始化（FastAPI + SQLAlchemy + Alembic + 目录结构） | 后端 | P0 | 2h | 无 |
 | F-03 | `db-schema` | 数据库表结构创建（SQLAlchemy Models + Alembic 迁移） | 后端 | P0 | 3h | F-02 |
 | F-04 | `api-base` | API 基础架构（统一响应模型、异常处理、中间件、JWT 鉴权） | 后端 | P0 | 3h | F-02 |
@@ -182,6 +181,10 @@
 ## ✅ DONE — 已完成
 
 > 任务完成后移至此处，记录完成日期和版本号。
+
+| 任务ID | 任务描述 | 完成日期 | 版本 |
+|--------|---------|---------|------|
+| F-01 | uni-app 项目初始化（Vue3 + Pinia + SCSS + pages.json 配置） | 2026-04-10 | v0.1.0 |
 
 ---
 
